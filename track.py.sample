@@ -1,0 +1,22 @@
+import netCDF4
+import grid
+import sys
+import os
+from glob import glob
+
+lon0 = 132.0
+lat0 = 20.9
+datadir = "/path/to/datadir"
+for f in glob(os.path.join(datadir, "*_surface.nc")):
+    nc = netCDF4.Dataset(f, 'r')
+    lon = nc.variables['lon'][:]
+    lat = nc.variables['lat'][:]
+    time = nc.variables['time']
+    dt = netCDF4.num2date(time[0], time.units)
+    slp = nc.variables['msl'][0,]
+    nc.close()
+    lonmin, latmin, slpmin = grid.find_minimum(slp, lon, lat, lon0, lat0)
+    lon0 = lonmin
+    lat0 = latmin
+    print("{} {} {} {} {} {} {}".format(dt.year, dt.month, dt.day, dt.hour, lonmin, latmin, slpmin))
+
